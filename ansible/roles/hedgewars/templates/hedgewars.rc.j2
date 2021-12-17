@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# $FreeBSD$
+#
+
+# PROVIDE: hedgewars
+# REQUIRE: DAEMON
+# BEFORE: LOGIN
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="hedgewars"
+desc="Hedgewars server"
+rcvar="hedgewars_enable"
+pidfile="/var/run/hedgewars.pid"
+procname="/usr/local/libexec/cabal/hedgewars-server"
+command="/usr/sbin/daemon"
+command_args="-p ${pidfile} -S /usr/local/bin/${name}-server"
+start_precmd=hedgewars_startprecmd
+
+: ${hedgewars_user:="hedgewars"}
+: ${hedgewars_group=${hedgewars_group:-$hedgewars_user}}
+
+hedgewars_startprecmd()
+{
+        if [ ! -e ${pidfile} ]; then
+                install -o ${hedgewars_user} -g ${hedgewars_group} /dev/null ${pidfile};
+        fi
+
+        if [ ! -e ${hedgewars_log_file} ]; then
+                install -o ${hedgewars_user} -g ${hedgewars_group} /dev/null ${hedgewars_log_file};
+        fi
+}
+
+load_rc_config $name
+run_rc_command "$1"

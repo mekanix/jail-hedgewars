@@ -1,0 +1,33 @@
+---
+- name: install hedgewars packages
+  with_items: "{{ hedgewars_packages }}"
+  package:
+    name: "{{ item.name }}"
+    state: latest
+  notify:
+    - restart hedgewars
+
+- name: create hedgewars user
+  user:
+    name: hedgewars
+    shell: "/bin/sh"
+
+- name: setup hedgewars service
+  template:
+    src: "hedgewars.rc.j2"
+    dest: "/usr/local/etc/rc.d/hedgewars"
+    owner: "root" 
+    group: "wheel"
+    mode: 0755
+  notify:
+    - restart hedgewars
+
+- name: setup hedgewars config
+  template:
+    src: "hedgewars.j2"
+    dest: "/etc/rc.conf.d/hedgewars"
+    owner: "root" 
+    group: "wheel"
+    mode: 0644
+  notify:
+    - restart hedgewars
